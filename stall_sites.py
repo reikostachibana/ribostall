@@ -47,14 +47,14 @@ def main():
                         help="Tolerance window for matching sites across reps (same units as indices)")
     parser.add_argument("--min_sep", type=int, default=7,
                         help="Minimum separation between consensus sites; prefer downstream when closer than this")
-    parser.add_argument("--out-json", default="../stall_sites.jsonl", help="JSON")                    
+    parser.add_argument("--out-json", default="../ribostall_results/stall_sites.jsonl", help="JSON")                    
     parser.add_argument("--motif", action="store_true", help="Plot motif")
     parser.add_argument("--reference", help="Reference file path")
     parser.add_argument("--flank-left", type=int, default=10, help="Motif")
     parser.add_argument("--flank-right", type=int, default=6, help="Motif")
     parser.add_argument("--psite-offset", type=int, default=0, help="Motif")
-    parser.add_argument("--out-png", default="../motif.png", help="Motif")
-    parser.add_argument("--out-csv", default="../motif_csv", help="Motif")
+    parser.add_argument("--out-png", default="../ribostall_results/motif.png", help="Motif")
+    parser.add_argument("--out-csv", default="../ribostall_results/motif_csv", help="Motif")
 
     args = parser.parse_args()
 
@@ -136,6 +136,7 @@ def main():
 
     # JSON
     df = consensus_to_long_df(consensus)
+    Path(args.out_json).parent.mkdir(parents=True, exist_ok=True)
     with open(args.out_json, "w") as f:
         for rec in df.to_dict(orient="records"):
             json.dump(rec, f)
