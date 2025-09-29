@@ -1,12 +1,25 @@
+import logging
 import argparse
 import gzip
 import pickle
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches 
+import re
+import json, os
+from pathlib import Path
 import ribopy
 from ribopy import Ribo
-from functions_stall_sites import filter_tx, codonize_counts_cds, call_stalls, consensus_stalls_across_reps
-from functions_AA import translate_cds_nt_to_aa, windows_aa, count_matrix, background_aa_freq, pwm_position_weighted_log2, plot_logo, CODON2AA, AA_ORDER, AA_CLASS
+from functions_stall_sites import filter_tx, codonize_counts_cds, call_stalls, consensus_stalls_across_reps, parse_key, consensus_to_long_df
+from functions_AA import translate_cds_nt_to_aa, windows_aa, count_matrix, background_aa_freq, pwm_position_weighted_log2, plot_logo, CODON2AA, AA_ORDER, AA_CLASS, CLASS_COLORS
 from functions import get_sequence, get_cds_range_lookup
+
+# =========================
+# Logging
+# =========================
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)s  %(processName)s  %(message)s",
+)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -16,6 +29,8 @@ def main():
     parser.add_argument("--ribo", required=True, help="Path to ribo file")
     parser.add_argument("--tx_threshold", type=float, default=1.0,
                         help="Minimum reads/nt (in CDS) for filtering transcripts")
+    parser.add_argument("--groups", required=True,
+                    help="Semicolon-separated group:rep1,rep2 definitions")
     parser.add_argument("--tx_min_reps", type=int, default=2,
                         help="Minimum number of replicates passing threshold for filtering transcripts")
     parser.add_argument("--min_z", type=float, default=1.0,
@@ -32,14 +47,25 @@ def main():
                         help="Tolerance window for matching sites across reps (same units as indices)")
     parser.add_argument("--min_sep", type=int, default=7,
                         help="Minimum separation between consensus sites; prefer downstream when closer than this")
+    parser.add_argument("--out-json", default="../stall_sites.jsonl", help="JSON")                    
     parser.add_argument("--motif", action="store_true", help="Plot motif")
     parser.add_argument("--reference", help="Reference file path")
     parser.add_argument("--flank-left", type=int, default=10, help="Motif")
     parser.add_argument("--flank-right", type=int, default=6, help="Motif")
     parser.add_argument("--psite-offset", type=int, default=0, help="Motif")
-    parser.add_argument("--out-motif", default="../motif.png", help="Motif")
+    parser.add_argument("--out-png", default="../motif.png", help="Motif")
+    parser.add_argument("--out-csv", default="../motif_csv", help="Motif")
 
     args = parser.parse_args()
+
+    # Rep groups
+    def parse_groups(groups_arg):
+        groups = {}
+        for block in groups_arg.split(";"):
+            name, reps = block.split(":")
+            groups[name] = reps.split(",")
+        return groups
+    groups = parse_groups(args.groups)
 
     # Load coverage
     with gzip.open(args.pickle, "rb") as f:
@@ -47,13 +73,6 @@ def main():
 
     # Load ribo object (adjust alias to your organism as needed)
     ribo_object = Ribo(args.ribo, alias=ribopy.api.alias.apris_human_alias)
-
-    # Rep groups
-    groups = {
-        "kidney": ["kidney_rep1", "kidney_rep2", "kidney_rep3"],
-        "lung":   ["lung_rep1", "lung_rep2", "lung_rep3"],
-        "liver":  ["liver_rep1", "liver_rep2", "liver_rep3"],
-    }
 
     # (Optional) quick sanity check that all reps exist in coverage
     missing = [r for rs in groups.values() for r in rs if r not in cov]
@@ -115,6 +134,14 @@ def main():
     }
     print(f"Number of total stall sites per group: {total_counts}")
 
+    # JSON
+    df = consensus_to_long_df(consensus)
+    with open(args.out_json, "w") as f:
+        for rec in df.to_dict(orient="records"):
+            json.dump(rec, f)
+            f.write("\n")
+    logging.info(f"Saved JSON to {args.out_json}")
+
     # Motif
     if args.motif:
         reference_file_path = args.reference
@@ -155,9 +182,20 @@ def main():
                     aa_class=AA_CLASS)
             ax.set_ylim(-ymin, ymax)   # same scale across panels
 
+        patches = [mpatches.Patch(color=c, label=cls) for cls, c in CLASS_COLORS.items()]
+        fig.legend(handles=patches, loc="lower center", ncol=len(patches))
+
         plt.tight_layout()
-        fig.savefig(args.out_motif, dpi=600)
-    
+        plt.subplots_adjust(bottom=0.17)
+        fig.savefig(args.out_png, dpi=600)
+        logging.info(f"Saved image to {args.out_png}")
+        
+        os.makedirs(args.out_csv, exist_ok=True)
+        for g, W in W_by_group.items():
+            # Save PWM (AA x position)
+            pwm_csv = os.path.join(args.out_csv, f"{g}_pwm_log2_enrichment.csv")
+            W.to_csv(pwm_csv)
+        logging.info(f"Saved csv to {args.out_csv}{pwm_csv}")
 
 if __name__ == "__main__":
     main()

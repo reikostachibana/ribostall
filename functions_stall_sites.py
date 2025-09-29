@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import bisect
 from typing import Dict, List, Iterable, Any
 
@@ -188,3 +189,25 @@ def consensus_stalls_across_reps(
         out[tx] = sorted(consensus)
 
     return out
+
+def parse_key(k: str):
+    s = str(k)
+    parts = s.split("|")
+    tx_id  = parts[0] if len(parts) > 0 else None
+    gene   = parts[5] if len(parts) > 5 else None  # based on your key pattern
+    return s, tx_id, gene
+
+def consensus_to_long_df(consensus: dict) -> pd.DataFrame:
+    rows = []
+    for grp, tx_map in consensus.items():
+        for tx_key, positions in tx_map.items():
+            tx_str, tx_id, gene = parse_key(tx_key)
+            for p in positions:
+                rows.append({
+                    "group": grp,
+                    "transcript": tx_str,
+                    "tx_id": tx_id,
+                    "gene": gene,
+                    "pos_codon": int(p),
+                })
+    return pd.DataFrame(rows).sort_values(["group","gene","tx_id","pos_codon"])

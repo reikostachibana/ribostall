@@ -34,6 +34,14 @@ AA_CLASS = {
 
 AA_ORDER = [a for a in "ACDEFGHIKLMNPQRSTVWY"]  # no stop
 
+CLASS_COLORS = {
+    "acidic":"#D62728",      # red
+    "basic":"#1F77B4",       # blue
+    "hydrophobic":"#2CA02C", # green
+    "polar":"#9467BD",       # purple
+    "neutral":"#7F7F7F",     # gray
+}
+
 def translate_cds_nt_to_aa(cds_nt: str) -> str:
     cds_nt = cds_nt.upper().replace("U","T")
     aas = []
@@ -135,6 +143,10 @@ def plot_logo(weight_mat, title="", aa_class=None, ax=None, ylim=None):
 
     if ax is None:
         ax = plt.gca()
+
+    for pos in (-1, 0, 1):
+        if pos in df.index:
+            ax.axvspan(pos-0.5, pos+0.5, color="lightgray", alpha=0.3, zorder=0)
 
     # Force all letters (positive & negative) to use class-based colors
     logomaker.Logo(

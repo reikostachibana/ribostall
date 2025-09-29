@@ -5,7 +5,7 @@ git clone https://github.com/reikostachibana/ribostall
 
 ## Create gzipped pickle file of coverage data with applied P-site offset.
 
-`adj_coverage_v2.py` creates a gzipped pickle file of coverage data with applied P-site offset.
+`adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset.
 
 Input:
 * Ribo file path - REQUIRED
@@ -50,6 +50,13 @@ Example output:
 
 ## Get stall sites
 
+No motif:
+
 ```
-python determine_stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" --tx_threshold 1.0 --min_z 1.0
+python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;lung:lung_rep1,lung_rep2,lung_rep3" --ribo "../bxc/bxc_disome.ribo" --tx_threshold 0.3 --min_z 0.7
+```
+
+Motif analysis:
+```
+python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" --tx_threshold 0.3 --min_z 0.7 --motif --reference "../reference_files/appris_mouse_v2_selected.fa.gz"
 ```
