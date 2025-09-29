@@ -195,7 +195,7 @@ def main():
             # Save PWM (AA x position)
             pwm_csv = os.path.join(args.out_csv, f"{g}_pwm_log2_enrichment.csv")
             W.to_csv(pwm_csv)
-        logging.info(f"Saved csv to {args.out_csv}{pwm_csv}")
+        logging.info(f"Saved csv to {pwm_csv}")
 
 if __name__ == "__main__":
     main()
