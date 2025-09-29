@@ -48,4 +48,8 @@ Example output:
 2025-09-29 14:11:57,981  INFO  MainProcess  Saved coverage to ../bxc/cov_di.pkl.gz
 ```
 
-3. 
+## Get stall sites
+
+```
+python determine_stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" --tx_threshold 1.0 --min_z 1.0
+```
