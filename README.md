@@ -1,9 +1,9 @@
-# Clone GitHub repository:
+Clone GitHub repository:
 ```
 git clone https://github.com/reikostachibana/ribostall
 ```
 
-# Create gzipped pickle file of coverage data with applied P-site offset.
+## Create gzipped pickle file of coverage data with applied P-site offset.
 
 `adj_coverage_v2.py` creates a gzipped pickle file of coverage data with applied P-site offset.
 
