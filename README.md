@@ -9,8 +9,8 @@ git clone https://github.com/reikostachibana/ribostall
 
 Input:
 * Ribo file path - REQUIRED
-* Minimum read length
-* Maximum read length
+* Minimum read length: Inclusive
+* Maximum read length: Inclusive
 * Site type: "start" or "stop" for P-site offset
 * Alias: DO NOT USE DUE TO UNSOLVED ERROR
 * Processes: Number of parallel worker processes (experiments run in parallel)
