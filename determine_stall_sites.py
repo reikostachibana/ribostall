@@ -1,13 +1,16 @@
 import argparse
 import gzip
 import pickle
+import matplotlib.pyplot as plt
 import ribopy
 from ribopy import Ribo
 from functions_stall_sites import filter_tx, codonize_counts_cds, call_stalls, consensus_stalls_across_reps
+from functions_AA import translate_cds_nt_to_aa, windows_aa, count_matrix, background_aa_freq, pwm_position_weighted_log2, plot_logo, CODON2AA, AA_ORDER, AA_CLASS
+from functions import get_sequence, get_cds_range_lookup
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Detect ribosome stall sites and print consensus results."
+        description="Detect ribosome stall sites"
     )
     parser.add_argument("--pickle", required=True, help="Path to coverage pickle.gz file")
     parser.add_argument("--ribo", required=True, help="Path to ribo file")
@@ -29,6 +32,13 @@ def main():
                         help="Tolerance window for matching sites across reps (same units as indices)")
     parser.add_argument("--min_sep", type=int, default=7,
                         help="Minimum separation between consensus sites; prefer downstream when closer than this")
+    parser.add_argument("--motif", action="store_true", help="Plot motif")
+    parser.add_argument("--reference", help="Reference file path")
+    parser.add_argument("--flank-left", type=int, default=10, help="Motif")
+    parser.add_argument("--flank-right", type=int, default=6, help="Motif")
+    parser.add_argument("--psite-offset", type=int, default=0, help="Motif")
+    parser.add_argument("--out-motif", default="../motif.png", help="Motif")
+
     args = parser.parse_args()
 
     # Load coverage
@@ -104,6 +114,49 @@ def main():
         for group, stalls in consensus.items()
     }
     print(f"Number of total stall sites per group: {total_counts}")
+
+    # Motif
+    if args.motif:
+        reference_file_path = args.reference
+        cds_range = get_cds_range_lookup(ribo_object)
+        sequence = get_sequence(ribo_object, reference_file_path, alias = ribopy.api.alias.apris_human_alias)   
+        def compute_W_for_group(g):
+            stalls = consensus[g]
+            win = windows_aa(consensus[g], cds_range, sequence,
+                        flank_left=args.flank_left, flank_right=args.flank_right, psite_offset_codons=args.psite_offset)
+            counts = count_matrix(win, AA_ORDER, flank_left=args.flank_left, flank_right=args.flank_right)
+            bg = background_aa_freq(consensus[g].keys(), cds_range, sequence, AA_ORDER)
+            return pwm_position_weighted_log2(counts, bg, pseudocount=args.pseudocount)
+
+        # compute all, then unify y-limits for fair visual comparison
+        W_by_group = {g: compute_W_for_group(g) for g in groups.keys()}
+
+        # per-position heights (sum over amino acids)
+        ymax = max(
+            W.loc[:, pos][W.loc[:, pos] > 0].sum()
+            for g, W in W_by_group.items()
+            for pos in W.columns
+        )
+        ymin = max(
+            abs(W.loc[:, pos][W.loc[:, pos] < 0].sum())
+            for g, W in W_by_group.items()
+            for pos in W.columns
+        )
+
+        # plot side-by-side
+        fig, axes = plt.subplots(1, len(groups.keys()), figsize=(5*len(groups.keys()), 5), sharey=True)
+        if len(groups.keys()) == 1:
+            axes = [axes]
+
+        for ax, g in zip(axes, groups.keys()):
+            plt.sca(ax)
+            plot_logo(W_by_group[g],
+                    title=f"{g.capitalize()}: EPA-centered AA motif",
+                    aa_class=AA_CLASS)
+            ax.set_ylim(-ymin, ymax)   # same scale across panels
+
+        plt.tight_layout()
+        fig.savefig(args.out_motif, dpi=600)
     
 
 if __name__ == "__main__":
