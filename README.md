@@ -3,9 +3,9 @@
 git clone https://github.com/reikostachibana/ribostall
 ```
 
-# Create gzipped pickle file of {transcript: coverage array}.
+# Create gzipped pickle file of coverage data with applied P-site offset.
 
-adj_coverage_v2.py
+`adj_coverage_v2.py` creates a gzipped pickle file of coverage data with applied P-site offset.
 
 Input:
 * Ribo file path - REQUIRED
@@ -15,11 +15,13 @@ Input:
 * Alias: DO NOT USE DUE TO UNSOLVED ERROR
 * Processes: Number of parallel worker processes (experiments run in parallel)
 * Batch-size: USE 0
-* Output file 
+* Output file
+
+Example input:
 ```
 python adj_coverage_v2.py --ribo "../bxc/bxc_disome.ribo" --site-type "stop" --min-len 57 --max-len 65 --procs 9 --out "../bxc/cov_di.pkl.gz"
 ```
-Output:
+Example output:
 ```
 2025-09-29 14:10:03,451  INFO  MainProcess  Experiments: ['kidney_rep1', 'kidney_rep2', 'kidney_rep3', 'liver_rep1', 'liver_rep2', 'liver_rep3', 'lung_rep1', 'lung_rep2', 'lung_rep3']
 2025-09-29 14:10:03,451  INFO  MainProcess  Transcripts: 21568 total
