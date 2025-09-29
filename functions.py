@@ -30,7 +30,7 @@ def get_sequence(ribo_object, reference_file_path, alias):
     }
     return sequence_dict
 
-def get_psite_offset(ribo_object, exp, mmin, mmax):
+def get_psite_offset(ribo_object, exp, mmin, mmax, start_stop):
     """
     Calculates the P-site offsets for ribosome profiling experiments.
 
@@ -43,7 +43,7 @@ def get_psite_offset(ribo_object, exp, mmin, mmax):
     Returns:
         dict: A dictionary mapping transcript identifiers to their respective P-site offsets.
     """
-    df = (ribo_object.get_metagene("start", experiments=exp,\
+    df = (ribo_object.get_metagene(site_type=start_stop, experiments=exp,\
                                    range_lower=mmin, range_upper=mmax,\
                                    sum_lengths=False,\
                                    sum_references=True))

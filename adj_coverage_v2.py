@@ -134,6 +134,7 @@ def parse_args():
     p.add_argument("--ribo", required=True, help="Path to .ribo file")
     p.add_argument("--min-len", type=int, required=True, help="Minimum read length (inclusive)")
     p.add_argument("--max-len", type=int, required=True, help="Maximum read length (inclusive)")
+    p.add_argument("--site-type", help="Site type for p-site offset")
     p.add_argument("--alias", action="store_true",
                    help="Use apris_human_alias (set if your .ribo uses mouse/human aliasing)")
     p.add_argument("--procs", type=int, default=1, help="Number of parallel worker processes (experiments run in parallel)")
@@ -163,7 +164,7 @@ def main():
     # Precompute per-experiment offsets (dict of dict: exp -> {L -> offset})
     exp_offsets: Dict[str, Dict[int, int]] = {}
     for exp in experiments:
-        od = get_psite_offset(ribo0, exp, args.min_len, args.max_len)  # user-provided
+        od = get_psite_offset(ribo0, exp, args.min_len, args.max_len, args.site_type)  # user-provided
         # cast keys/values to plain ints to avoid uint overflows later
         exp_offsets[exp] = {int(L): int(o) for L, o in od.items()}
 
