@@ -77,5 +77,5 @@ Number of total stall sites per group: {'kidney': 50786, 'liver': 22308, 'lung':
 ```
 
 Output:
-* JSON file of stall sites. The indices are codons (not nucleotides), where 1 is the start codon "ATG."
+* JSON file of stall sites. The indices are codons (not nucleotides), where 0 is the start codon "ATG."
 * PNG
