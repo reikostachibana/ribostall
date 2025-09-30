@@ -84,32 +84,41 @@ Stall sites must pass
 * If multiple stall sites within ``--min_sep``, then the most downstream is taken
 * Minimum replicates ``--stall_min_reps``
 
-Check filtering:
-```
-python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" \
---groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
---tx_threshold 0.3 --min_z 1.0
-```
 Output:
+* JSON file of stall sites. The indices are codons (not nucleotides), where 0 is the start codon "ATG."
+* PNG
+
+Example input to check filter thresholds:
+```
+python stall_sites.py \
+--pickle "../bxc/cov_di.pkl.gz" \
+--ribo "../bxc/bxc_disome.ribo" \
+--groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
+--tx_threshold 0.3 \
+--min_z 1.0
+```
+Example output:
 ```
 Number of filtered transcripts: 122
 Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853}
 2025-09-30 12:42:37,863  INFO  MainProcess  Saved JSON to ../ribostall_results/stall_sites.jsonl
 ```
 
-Motif analysis:
+Example input for motif analysis:
 ```
-python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" \
+python stall_sites.py \
+--pickle "../bxc/cov_di.pkl.gz" \
+--ribo "../bxc/bxc_disome.ribo" \
 --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
---tx_threshold 0.0 --min_z 0.0
---motif --reference "../reference_files/appris_mouse_v2_selected.fa.gz"
---flank-left 20 --flank-right 10
+--tx_threshold 0.0 \
+--min_z 0.0
+--motif \
+--reference "../reference_files/appris_mouse_v2_selected.fa.gz"
+--flank-left 20 \
+--flank-right 10
 ```
+Example output:
 ```
 Number of filtered transcripts: 11031
 Number of total stall sites per group: {'kidney': 50786, 'liver': 22308, 'lung': 20020}
 ```
-
-Output:
-* JSON file of stall sites. The indices are codons (not nucleotides), where 0 is the start codon "ATG."
-* PNG
