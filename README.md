@@ -19,7 +19,8 @@ Input:
 
 Example input:
 ```
-python adj_coverage_v2.py --ribo "../bxc/bxc_disome.ribo" --site-type "stop" --min-len 57 --max-len 65 --procs 9 --out "../bxc/cov_di.pkl.gz"
+python adj_coverage.py --ribo "../bxc/bxc_disome.ribo" --site-type "stop" \
+--min-len 57 --max-len 65 --procs 9 --out "../bxc/cov_di.pkl.gz"
 ```
 Example output:
 ```
@@ -50,13 +51,28 @@ Example output:
 
 ## Get stall sites
 
-No motif:
-
+Check filtering:
 ```
-python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;lung:lung_rep1,lung_rep2,lung_rep3" --ribo "../bxc/bxc_disome.ribo" --tx_threshold 0.3 --min_z 0.7
+python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" \
+--groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
+--tx_threshold 0.3 --min_z 1.0
 ```
 
 Motif analysis:
 ```
-python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" --tx_threshold 0.3 --min_z 0.7 --motif --reference "../reference_files/appris_mouse_v2_selected.fa.gz"
+python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" \
+--groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
+--tx_threshold 0.3 --min_z 0.7
+--motif --reference "../reference_files/appris_mouse_v2_selected.fa.gz"
 ```
+```
+Number of filtered transcripts: 122
+Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853}
+2025-09-29 19:15:28,187  INFO  MainProcess  Saved JSON to ../ribostall_results/stall_sites.jsonl
+2025-09-29 19:15:41,328  INFO  MainProcess  Saved image to ../ribostall_results/motif.png
+2025-09-29 19:15:41,346  INFO  MainProcess  Saved csv to ../ribostall_results/motif_csv/lung_pwm_log2_enrichment.csv
+```
+
+Output:
+* JSON file of stall sites. The indices are codons (not nucleotides), where 1 is the start codon "ATG."
+* PNG
