@@ -36,17 +36,9 @@ Supported platforms & versions
 | `--site-type` | str    | —       | ✅       | `"start"` (monosome) or `"stop"` (disome) for P-site offset |
 | `--min-len`   | int    | —       | ✅       | Minimum read length (inclusive) |
 | `--max-len`   | int    | —       | ✅       | Maximum read length (inclusive) |
-| `--procs`     | int    | 4       | ❌       | Number of parallel processes |
+| `--procs`     | int    | 1       | ❌       | Number of parallel processes |
 | `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
-| --alias       | bool   | DO NOT USE  | ❌ | DO NOT USE  |
-Input:
-* Ribo file path: REQUIRED
-* Minimum read length: Inclusive
-* Maximum read length: Inclusive
-* Site type: "start" or "stop" for P-site offset
-* Alias: *DO NOT USE DUE TO UNSOLVED ERROR*
-* Processes: Number of parallel worker processes (experiments run in parallel)
-* Output file
+| --alias       | flag   | off  | ❌ | DO NOT USE  |
 
 Output:
 * Gzipped pickle of dictionary `{replicate: {transcript: coverage_array}}`)
@@ -66,33 +58,26 @@ python adj_coverage.py  \
 
 `stall_sites.py`
 
-Required input:
-* Pickle file path: required
-* Ribo file path: required
-* Groups: list of groups and replicates using the format "group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3..."
-
-Parameters for filtering transcripts:
-* Threshold for transcript filtering by average reads per nucleotide (default=1.0)
-* Minimum replicates needed to pass transcript filtering (default=2)
-
-Parameters to determine stall sites:
-* Minimum z-score needed to pass stall site filtering (default=1.0)
-* Minimum replicates needed to support stall site (default=2)
-* Number of codons trimmed after start codon and before stop codon (default=10)
-* Pseudocount (default=0.5)
-* Output JSON file path for list of stall sites
-
-Optional: parameters to run motif analysis (include `--motif`)
-* Reference file path
-* Number of codons/amino acids to the left of the P-site (default=10)
-* Number of codons/amino acids to the right of the P-site (default=6)
-* Output PNG file path
-* Output CSV file path
-
-Output:
-* JSON file of stall sites. The indices are _codons_ (not nucleotides), where 0 is the start codon "ATG."
-* Optional: PNG file of amino acid enrichment around stall sites.
-* Optional: Folder of CSV files of the calculated amino acid enrichment for each group
+| Argument         | Type   | Default | Required | Description |
+|------------------|--------|---------|----------|-------------|
+| `--pickle`       | path   | —       | ✅       | Coverage pickle (`.pkl.gz`) |
+| `--ribo`         | path   | —       | ✅       | Input `.ribo` file |
+| `--groups`       | str    | —       | ✅       | group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3... |
+| `--tx_threshold` | float  | 1.0     | ❌       | Min avg reads/nt to keep transcript |
+| `--tx_min_rep    | int    | 2       | ❌       | Min replicates to support transcript |
+| `--min_z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
+| `--min_reads`    | int    | 2       | ❌       | Min reads to call stall site |
+| `--stall_min_reps | int   | 2       | ❌       | Min replicates to support stall site |
+| `--trim_edges`   | int    | 10      | ❌       | Exclude codons at CDS ends |
+| `--min_sep`      | int    | 7       | ❌       | Minimum separation between consensus sites; prefer downstream when closer than this |
+| `--pseudocount   | float  | 0.5     | ❌       | Small value added to all amino acid counts before calculating enrichment, to avoid division by zero and stabilize log2 ratios |
+| `--out-json`     | path   | `stalls.jsonl` | ❌ | JSON output file |
+| `--motif`        | flag   | off     | ❌       | Run amino acid motif analysis |
+| `--reference`    | path   | —       | if `--motif` | Reference FASTA file |
+| `--flank-left`   | int    | 10      | ❌       | Codons left of P-site for motif |
+| `--flank-right`  | int    | 6       | ❌       | Codons right of P-site for motif |
+| `--out-png`      | path   | `motif.png`    | ❌ | Motif plot |
+| `--out-csv`      | path   | `motif_csv/`   | ❌ | CSV outputs for motif enrichment |
 
 Example input to check filter thresholds:
 ```
@@ -156,26 +141,3 @@ Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853
 2025-09-30 13:40:52,687  INFO  MainProcess  Saved image to ../ribostall_results/motif.png
 2025-09-30 13:40:52,708  INFO  MainProcess  Saved csv to ../ribostall_results/motif_csv/lung_pwm_log2_enrichment.csv
 ```
-
-## Command reference
-
-### `adj_coverage.py`
-
-
-
-### `stall_sites.py`
-
-| Argument         | Type   | Default | Required | Description |
-|------------------|--------|---------|----------|-------------|
-| `--pickle`       | path   | —       | ✅       | Coverage pickle (`.pkl.gz`) |
-| `--ribo`         | path   | —       | ✅       | Input `.ribo` file |
-| `--groups`       | str    | —       | ✅       | Group:rep1,rep2;group2:rep1… |
-| `--tx_threshold` | float  | 1.0     | ❌       | Min avg reads/nt to keep transcript |
-| `--min_z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
-| `--motif`        | flag   | off     | ❌       | Run amino acid motif analysis |
-| `--reference`    | path   | —       | if `--motif` | Reference FASTA file |
-| `--flank-left`   | int    | 10      | ❌       | Codons left of P-site for motif |
-| `--flank-right`  | int    | 6       | ❌       | Codons right of P-site for motif |
-| `--out-json`     | path   | `stalls.jsonl` | ❌ | JSON output file |
-| `--out-png`      | path   | `motif.png`    | ❌ | Motif plot |
-| `--out-csv`      | path   | `motif_csv/`   | ❌ | CSV outputs for motif enrichment |
