@@ -1,9 +1,28 @@
+## Overview
+
+`ribostall` provides a Python-based pipeline for:
+- Extracting read coverage from `.ribo` files with applied P-site offsets  
+- Detecting candidate ribosome stall sites across replicates  
+- Performing amino acid enrichment analysis around stall sites  
+- Generating motif plots, heatmaps, and coverage visualizations  
+
+## Getting started
+
 Clone GitHub repository:
 ```
 git clone https://github.com/reikostachibana/ribostall
 ```
 
-## Create gzipped pickle file of coverage data with applied P-site offset.
+Install dependencies:
+```
+pip install -r requirements.txt
+```
+
+Required files to generate :
+* .ribo file (see [RiboFlow](https://github.com/ribosomeprofiling/riboflow))
+* 
+
+## Create gzipped pickle file of coverage data with applied P-site offset
 
 `adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset.
 
