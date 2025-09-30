@@ -1,0 +1,3 @@
+[console_scripts]
+ribopy = ribopy.cli.main:cli
+
