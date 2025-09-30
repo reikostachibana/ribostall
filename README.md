@@ -63,6 +63,12 @@ python adj_coverage.py  \
 4. **Consensus stall sites**: A site must appear in at least `--min-support` replicates to be reported. If there are >1 stall sites within `--min_sep` codons, the most downstream stall site is reported.
 5. **Output**: List of stall sites `{"group": "group", "transcript": "transcript", "tx_id": "tx_id", "gene": "gene", "pos_codon", 1}`
 
+Optional: `--motif` finds amino acid enrichment around stall sites. This is done by:
+1. **Count amino acids across all stall windows**: Within  `--flank-left` and `--flank-right` around the P-site at stall sites, count the amino acids at each position.
+2. **Calculate background frequency**: Compute the overall frequency of each amino acid across all codons in the same set of transcripts (not just stall sites). This ensures enrichment is relative to the transcriptome composition of the analyzed set.
+3. **Convert counts into probabilities**: Add `--pseudocount` to every amino acid count and normalize to get probabilities per position.
+4. **Position weight matrix**: Compare probability of amino acid at that position to the background frequency by calculating log2 enrichment `log2 ( probabilities / background frequency )`. Multiply the log2 enrichment with the probability to get *position weight matrix*. Enriched > 0, depleted < 0. 
+
 | Argument         | Type   | Default | Required | Description |
 |------------------|--------|---------|----------|-------------|
 | `--pickle`       | path   | —       | ✅       | Coverage pickle (`.pkl.gz`) |
