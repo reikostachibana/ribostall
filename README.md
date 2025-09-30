@@ -3,15 +3,17 @@
 `ribostall` provides a Python-based pipeline for:
 - Extracting read coverage from `.ribo` files with applied P-site offsets  
 - Detecting candidate ribosome stall sites across replicates  
-- Performing amino acid enrichment analysis around stall sites  
-- Generating motif plots, heatmaps, and coverage visualizations  
+- Performing amino acid enrichment analysis around stall sites
 
-## Getting started
+## Installation
 
-Clone GitHub repository:
+Clone repository:
 ```
 git clone https://github.com/reikostachibana/ribostall
 ```
+```bash
+git clone https://github.com/reikostachibana/ribostall
+cd ribostall
 
 Install dependencies:
 ```
