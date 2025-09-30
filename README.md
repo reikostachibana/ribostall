@@ -38,7 +38,7 @@ Supported platforms & versions
 | `--max-len`   | int    | —       | ✅       | Maximum read length (inclusive) |
 | `--procs`     | int    | 1       | ❌       | Number of parallel processes |
 | `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
-| --alias       | flag   | off  | ❌ | DO NOT USE  |
+| --alias`       | flag   | off  | ❌ | DO NOT USE  |
 
 Output:
 * Gzipped pickle of dictionary `{replicate: {transcript: coverage_array}}`)
