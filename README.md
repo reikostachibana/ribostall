@@ -29,13 +29,14 @@ Example `.ribo` files and reference files (human and mouse) can be found in [rib
 `adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset.
 
 Input:
-* Ribo file path - REQUIRED
+* Ribo file path: REQUIRED
 * Minimum read length: Inclusive
 * Maximum read length: Inclusive
 * Site type: "start" or "stop" for P-site offset
 * Alias: *DO NOT USE DUE TO UNSOLVED ERROR*
 * Processes: Number of parallel worker processes (experiments run in parallel)
 * Output file
+
 Output:
 * Gzipped pickle of dictionary `{replicate: {transcript: coverage_array}}`)
 
