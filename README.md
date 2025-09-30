@@ -28,7 +28,7 @@ Supported platforms & versions
 
 # 1. Generate coverage dictionary
 
-`adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset.
+`adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset within the CDS.
 
 | Argument      | Type   | Default | Required | Description |
 |---------------|--------|---------|----------|-------------|
@@ -56,7 +56,12 @@ python adj_coverage.py  \
 
 # 2. Get stall sites
 
-`stall_sites.py`
+`stall_sites.py` finds stall sites from the coverage data with applied P-site offsets. This is done by:
+1. **Transcript filtering**: For each transcript, the average reads per nucleotide is computed. Transcripts with coverage below `--tx_threshold` in fewer than `--tx_min_rep` are excluded.
+2. **Codonize read counts**: An array of the number of reads per codon.
+3. **z-score calculation**: Coverage per codon is converted to `log2(x + pseudocount)` to stabilize variance and handle zeros. Compute transcript-wide z-scores. Codons with z-scores ≥ `--min_z` and reads ≥ `--min_reads` are considered candidate stalls. The first and last `--trim_edges` codons are ignored.
+4. **Consensus stall sites**: A site must appear in at least `--min-support` replicates to be reported. If there are >1 stall sites within `--min_sep` codons, the most downstream stall site is reported.
+5. **Output**: `{"group": "group", "transcript": "transcript", "tx_id": "tx_id", "gene": "gene", "pos_codon", 1}`
 
 | Argument         | Type   | Default | Required | Description |
 |------------------|--------|---------|----------|-------------|
