@@ -79,11 +79,6 @@ Example output:
 
 ## Get stall sites
 
-Stall sites must pass
-* z-score threshold
-* If multiple stall sites within ``--min_sep``, then the most downstream is taken
-* Minimum replicates ``--stall_min_reps``
-
 Required input:
 * Pickle file path: required
 * Ribo file path: required
