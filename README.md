@@ -22,6 +22,10 @@ Input Requirements
 * Reference fasta file
 Example `.ribo` files and reference files (human and mouse) can be found in [ribograph_sample_data](https://github.com/ribosomeprofiling/ribograph_sampledata?tab=readme-ov-file)
 
+Supported platforms & versions
+* Python: 3.9–3.11
+* OS: Linux/macOS
+
 # 1. Generate coverage dictionary
 
 `adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset.
@@ -143,3 +147,33 @@ Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853
 2025-09-30 13:40:52,687  INFO  MainProcess  Saved image to ../ribostall_results/motif.png
 2025-09-30 13:40:52,708  INFO  MainProcess  Saved csv to ../ribostall_results/motif_csv/lung_pwm_log2_enrichment.csv
 ```
+
+## Command reference
+
+### `adj_coverage.py`
+
+| Argument      | Type   | Default | Required | Description |
+|---------------|--------|---------|----------|-------------|
+| `--ribo`      | path   | —       | ✅       | Input `.ribo` file |
+| `--site-type` | str    | —       | ✅       | `"start"` (monosome) or `"stop"` (disome) for P-site offset |
+| `--min-len`   | int    | —       | ✅       | Minimum read length (inclusive) |
+| `--max-len`   | int    | —       | ✅       | Maximum read length (inclusive) |
+| `--procs`     | int    | 4       | ❌       | Number of parallel processes |
+| `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
+
+### `stall_sites.py`
+
+| Argument         | Type   | Default | Required | Description |
+|------------------|--------|---------|----------|-------------|
+| `--pickle`       | path   | —       | ✅       | Coverage pickle (`.pkl.gz`) |
+| `--ribo`         | path   | —       | ✅       | Input `.ribo` file |
+| `--groups`       | str    | —       | ✅       | Group:rep1,rep2;group2:rep1… |
+| `--tx_threshold` | float  | 1.0     | ❌       | Min avg reads/nt to keep transcript |
+| `--min_z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
+| `--motif`        | flag   | off     | ❌       | Run amino acid motif analysis |
+| `--reference`    | path   | —       | if `--motif` | Reference FASTA file |
+| `--flank-left`   | int    | 10      | ❌       | Codons left of P-site for motif |
+| `--flank-right`  | int    | 6       | ❌       | Codons right of P-site for motif |
+| `--out-json`     | path   | `stalls.jsonl` | ❌ | JSON output file |
+| `--out-png`      | path   | `motif.png`    | ❌ | Motif plot |
+| `--out-csv`      | path   | `motif_csv/`   | ❌ | CSV outputs for motif enrichment |
