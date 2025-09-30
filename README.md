@@ -51,6 +51,11 @@ Example output:
 
 ## Get stall sites
 
+Stall sites must pass
+* z-score threshold
+* If multiple stall sites within ``--min_sep``, then the most downstream is taken
+* Minimum replicates ``--stall_min_reps``
+
 Check filtering:
 ```
 python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" \
