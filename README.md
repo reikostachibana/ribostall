@@ -64,13 +64,13 @@ python adj_coverage.py  \
 | `--ribo`         | path   | —       | ✅       | Input `.ribo` file |
 | `--groups`       | str    | —       | ✅       | group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3... |
 | `--tx_threshold` | float  | 1.0     | ❌       | Min avg reads/nt to keep transcript |
-| `--tx_min_rep    | int    | 2       | ❌       | Min replicates to support transcript |
+| `--tx_min_rep`    | int    | 2       | ❌       | Min replicates to support transcript |
 | `--min_z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
 | `--min_reads`    | int    | 2       | ❌       | Min reads to call stall site |
-| `--stall_min_reps | int   | 2       | ❌       | Min replicates to support stall site |
+| `--stall_min_reps` | int   | 2       | ❌       | Min replicates to support stall site |
 | `--trim_edges`   | int    | 10      | ❌       | Exclude codons at CDS ends |
 | `--min_sep`      | int    | 7       | ❌       | Minimum separation between consensus sites; prefer downstream when closer than this |
-| `--pseudocount   | float  | 0.5     | ❌       | Small value added to all amino acid counts before calculating enrichment, to avoid division by zero and stabilize log2 ratios |
+| `--pseudocount`   | float  | 0.5     | ❌       | Small value added to all amino acid counts before calculating enrichment, to avoid division by zero and stabilize log2 ratios |
 | `--out-json`     | path   | `stalls.jsonl` | ❌ | JSON output file |
 | `--motif`        | flag   | off     | ❌       | Run amino acid motif analysis |
 | `--reference`    | path   | —       | if `--motif` | Reference FASTA file |
