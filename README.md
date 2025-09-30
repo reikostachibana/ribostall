@@ -30,6 +30,15 @@ Supported platforms & versions
 
 `adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset.
 
+| Argument      | Type   | Default | Required | Description |
+|---------------|--------|---------|----------|-------------|
+| `--ribo`      | path   | —       | ✅       | Input `.ribo` file |
+| `--site-type` | str    | —       | ✅       | `"start"` (monosome) or `"stop"` (disome) for P-site offset |
+| `--min-len`   | int    | —       | ✅       | Minimum read length (inclusive) |
+| `--max-len`   | int    | —       | ✅       | Maximum read length (inclusive) |
+| `--procs`     | int    | 4       | ❌       | Number of parallel processes |
+| `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
+| --alias       | bool   | DO NOT USE  | ❌ | DO NOT USE  |
 Input:
 * Ribo file path: REQUIRED
 * Minimum read length: Inclusive
@@ -152,14 +161,7 @@ Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853
 
 ### `adj_coverage.py`
 
-| Argument      | Type   | Default | Required | Description |
-|---------------|--------|---------|----------|-------------|
-| `--ribo`      | path   | —       | ✅       | Input `.ribo` file |
-| `--site-type` | str    | —       | ✅       | `"start"` (monosome) or `"stop"` (disome) for P-site offset |
-| `--min-len`   | int    | —       | ✅       | Minimum read length (inclusive) |
-| `--max-len`   | int    | —       | ✅       | Maximum read length (inclusive) |
-| `--procs`     | int    | 4       | ❌       | Number of parallel processes |
-| `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
+
 
 ### `stall_sites.py`
 
