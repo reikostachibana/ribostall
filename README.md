@@ -22,9 +22,7 @@ Input Requirements
 * Reference fasta file
 Example `.ribo` files and reference files (human and mouse) can be found in [ribograph_sample_data](https://github.com/ribosomeprofiling/ribograph_sampledata?tab=readme-ov-file)
 
-# Usage
-
-### 1. Generate coverage dictionary
+# 1. Generate coverage dictionary
 
 `adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset.
 
@@ -50,7 +48,66 @@ python adj_coverage.py  \
 --procs 9 \
 --out "../bxc/cov_di.pkl.gz"
 ```
-Example output:
+
+# 2. Get stall sites
+
+`stall_sites.py`
+
+Required input:
+* Pickle file path: required
+* Ribo file path: required
+* Groups: list of groups and replicates using the format "group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3..."
+
+Parameters for filtering transcripts:
+* Threshold for transcript filtering by average reads per nucleotide (default=1.0)
+* Minimum replicates needed to pass transcript filtering (default=2)
+
+Parameters to determine stall sites:
+* Minimum z-score needed to pass stall site filtering (default=1.0)
+* Minimum replicates needed to support stall site (default=2)
+* Number of codons trimmed after start codon and before stop codon (default=10)
+* Pseudocount (default=0.5)
+* Output JSON file path for list of stall sites
+
+Optional: parameters to run motif analysis (include `--motif`)
+* Reference file path
+* Number of codons/amino acids to the left of the P-site (default=10)
+* Number of codons/amino acids to the right of the P-site (default=6)
+* Output PNG file path
+* Output CSV file path
+
+Output:
+* JSON file of stall sites. The indices are _codons_ (not nucleotides), where 0 is the start codon "ATG."
+* Optional: PNG file of amino acid enrichment around stall sites.
+* Optional: Folder of CSV files of the calculated amino acid enrichment for each group
+
+Example input to check filter thresholds:
+```
+python stall_sites.py \
+--pickle "../bxc/cov_di.pkl.gz" \
+--ribo "../bxc/bxc_disome.ribo" \
+--groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
+--tx_threshold 0.3 \
+--min_z 1.0
+```
+
+Example input for motif analysis:
+```
+python stall_sites.py \
+--pickle "../bxc/cov_di.pkl.gz" \
+--ribo "../bxc/bxc_disome.ribo" \
+--groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
+--tx_threshold 0.3 \
+--min_z 1.0 \
+--motif \
+--reference "../reference_files/appris_mouse_v2_selected.fa.gz" \
+--flank-left 20 \
+--flank-right 10
+```
+
+# Troubleshooting
+
+Successful run of `adj_coverage.py`:
 ```
 2025-09-29 14:10:03,451  INFO  MainProcess  Experiments: ['kidney_rep1', 'kidney_rep2', 'kidney_rep3', 'liver_rep1', 'liver_rep2', 'liver_rep3', 'lung_rep1', 'lung_rep2', 'lung_rep3']
 2025-09-29 14:10:03,451  INFO  MainProcess  Transcripts: 21568 total
@@ -77,67 +134,12 @@ Example output:
 2025-09-29 14:11:57,981  INFO  MainProcess  Saved coverage to ../bxc/cov_di.pkl.gz
 ```
 
-## Get stall sites
-
-Required input:
-* Pickle file path: required
-* Ribo file path: required
-* Groups: list of groups and replicates using the format "group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3..."
-
-Parameters for filtering transcripts:
-* Threshold for transcript filtering by average reads per nucleotide (default=1.0)
-* Minimum replicates needed to pass transcript filtering (default=2)
-
-Parameters to determine stall sites:
-* Minimum z-score needed to pass stall site filtering (default=1.0)
-* Minimum replicates needed to support stall site (default=2)
-* Number of codons trimmed after start codon and before stop codon (default=10)
-* Pseudocount (default=0.5)
-* Output JSON file path for list of stall sites
-
-Parameters to run motif analysis (include `--motif`)
-* Reference file path
-* Number of codons/amino acids to the left of the P-site (default=10)
-* Number of codons/amino acids to the right of the P-site (default=6)
-* Output PNG file path
-* Output CSV file path
-
-Output:
-* JSON file of stall sites. The indices are _codons_ (not nucleotides), where 0 is the start codon "ATG."
-* PNG file of amino acid enrichment around stall sites.
-* Folder of CSV files of the calculated amino acid enrichment for each group
-
-Example input to check filter thresholds:
+Successful run of `stall_sites.py`:
 ```
-python stall_sites.py \
---pickle "../bxc/cov_di.pkl.gz" \
---ribo "../bxc/bxc_disome.ribo" \
---groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
---tx_threshold 0.3 \
---min_z 1.0
-```
-Example output:
-```
+(ribo) (base) uwusers-imac:ribostall chunglab$ python stall_sites.py --pickle "../Gatfield_Share/cov_di.pkl.gz" --ribo "../Gatfield_Share/bxc_disome.ribo" --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" --tx_threshold 0.3 --min_z 1.0 --motif --reference "../Gatfield_Share/appris_mouse_v2_selected.fa.gz" --flank-left 20 --flank-right 10
 Number of filtered transcripts: 122
 Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853}
-2025-09-30 12:42:37,863  INFO  MainProcess  Saved JSON to ../ribostall_results/stall_sites.jsonl
-```
-
-Example input for motif analysis:
-```
-python stall_sites.py \
---pickle "../bxc/cov_di.pkl.gz" \
---ribo "../bxc/bxc_disome.ribo" \
---groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
---tx_threshold 0.0 \
---min_z 0.0
---motif \
---reference "../reference_files/appris_mouse_v2_selected.fa.gz"
---flank-left 20 \
---flank-right 10
-```
-Example output:
-```
-Number of filtered transcripts: 11031
-Number of total stall sites per group: {'kidney': 50786, 'liver': 22308, 'lung': 20020}
+2025-09-30 13:40:32,099  INFO  MainProcess  Saved JSON to ../ribostall_results/stall_sites.jsonl
+2025-09-30 13:40:52,687  INFO  MainProcess  Saved image to ../ribostall_results/motif.png
+2025-09-30 13:40:52,708  INFO  MainProcess  Saved csv to ../ribostall_results/motif_csv/lung_pwm_log2_enrichment.csv
 ```
