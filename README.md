@@ -84,9 +84,33 @@ Stall sites must pass
 * If multiple stall sites within ``--min_sep``, then the most downstream is taken
 * Minimum replicates ``--stall_min_reps``
 
+Required input:
+* Pickle file path: required
+* Ribo file path: required
+* Groups: list of groups and replicates using the format "group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3..."
+
+Parameters for filtering transcripts:
+* Threshold for transcript filtering by average reads per nucleotide (default=1.0)
+* Minimum replicates needed to pass transcript filtering (default=2)
+
+Parameters to determine stall sites:
+* Minimum z-score needed to pass stall site filtering (default=1.0)
+* Minimum replicates needed to support stall site (default=2)
+* Number of codons trimmed after start codon and before stop codon (default=10)
+* Pseudocount (default=0.5)
+* Output JSON file path for list of stall sites
+
+Parameters to run motif analysis (include `--motif`)
+* Reference file path
+* Number of codons/amino acids to the left of the P-site (default=10)
+* Number of codons/amino acids to the right of the P-site (default=6)
+* Output PNG file path
+* Output CSV file path
+
 Output:
-* JSON file of stall sites. The indices are codons (not nucleotides), where 0 is the start codon "ATG."
-* PNG
+* JSON file of stall sites. The indices are _codons_ (not nucleotides), where 0 is the start codon "ATG."
+* PNG file of amino acid enrichment around stall sites.
+* Folder of CSV files of the calculated amino acid enrichment for each group
 
 Example input to check filter thresholds:
 ```
