@@ -62,15 +62,13 @@ Motif analysis:
 ```
 python stall_sites.py --pickle "../bxc/cov_di.pkl.gz" --ribo "../bxc/bxc_disome.ribo" \
 --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
---tx_threshold 0.3 --min_z 0.7
+--tx_threshold 0.0 --min_z 0.0
 --motif --reference "../reference_files/appris_mouse_v2_selected.fa.gz"
+--flank-left 20 --flank-right 10
 ```
 ```
-Number of filtered transcripts: 122
-Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853}
-2025-09-29 19:15:28,187  INFO  MainProcess  Saved JSON to ../ribostall_results/stall_sites.jsonl
-2025-09-29 19:15:41,328  INFO  MainProcess  Saved image to ../ribostall_results/motif.png
-2025-09-29 19:15:41,346  INFO  MainProcess  Saved csv to ../ribostall_results/motif_csv/lung_pwm_log2_enrichment.csv
+Number of filtered transcripts: 11031
+Number of total stall sites per group: {'kidney': 50786, 'liver': 22308, 'lung': 20020}
 ```
 
 Output:
