@@ -29,6 +29,7 @@ logging.basicConfig(
 _RIBO = None
 _CDS_RANGE: Dict[str, Tuple[int, int]] = {}
 _TRANSCRIPTS: List[str] = []
+_USE_ALIAS = False
 
 def _safe_window(arr: np.ndarray, lo: int, hi: int) -> np.ndarray:
     """Return arr[lo:hi] with zero-padding if the window runs off the array."""
@@ -46,19 +47,25 @@ def _safe_window(arr: np.ndarray, lo: int, hi: int) -> np.ndarray:
         )
     return core
 
+def tx_alias(t):
+    t = str(t)
+    parts = t.split("|")
+    return parts[4] if len(parts) > 4 else t
+
 def _init_worker(ribo_path: str, use_alias: bool,
                  cds_range: Dict[str, Tuple[int, int]],
                  transcripts: List[str]) -> None:
-    """Open the .ribo once per worker and stash shared metadata."""
-    global _RIBO, _CDS_RANGE, _TRANSCRIPTS
+    global _RIBO, _CDS_RANGE, _TRANSCRIPTS, _USE_ALIAS
+
+    _USE_ALIAS = bool(use_alias)
+
     if use_alias:
         _RIBO = Ribo(ribo_path, alias=ribopy.api.alias.apris_human_alias)
-        _TRANSCRIPTS = [apris_human_alias(t) for t in _RIBO.transcript_names]
     else:
         _RIBO = Ribo(ribo_path)
-        _TRANSCRIPTS = list(transcripts)
-    # cast CDS ranges to signed ints defensively
-    _CDS_RANGE = {t: (int(s), int(e)) for t, (s, e) in cds_range.items()}
+
+    _TRANSCRIPTS = list(transcripts)
+    _CDS_RANGE = {str(t): (int(s), int(e)) for t, (s, e) in cds_range.items()}
 
 def _preallocate_output(transcripts: Iterable[str]) -> Dict[str, np.ndarray]:
     """Pre-allocate a zero array per transcript sized to its CDS window."""
@@ -74,6 +81,10 @@ def _add_length_into_out(exp: str, L: int, ps: int,
                          batch: Iterable[str] = None) -> None:
     """Read coverage for a single length L once, then accumulate into 'out'."""
     cov_all = _RIBO.get_coverage(experiment=exp, range_lower=int(L), range_upper=int(L))
+    
+    if _USE_ALIAS:
+        cov_all = {tx_alias(k): v for k, v in cov_all.items()}
+        
     to_iter = _TRANSCRIPTS if batch is None else batch
     ps_i = int(ps)
     for t in to_iter:
@@ -168,7 +179,12 @@ def main():
 
     # CDS ranges (dict: transcript -> (start, stop)), cast to signed ints
     cds_range = get_cds_range_lookup(ribo0)
-    cds_range = {t: (int(s), int(e)) for t, (s, e) in cds_range.items()}
+    if args.alias:
+        cds_range = {tx_alias(t): (int(s), int(e)) for t, (s, e) in cds_range.items()}
+        transcripts = list(cds_range.keys())
+    else:
+        cds_range = {str(t): (int(s), int(e)) for t, (s, e) in cds_range.items()}
+        transcripts = list(cds_range.keys())
 
     # Precompute per-experiment offsets (dict of dict: exp -> {L -> offset})
     exp_offsets: Dict[str, Dict[int, int]] = {}
