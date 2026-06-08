@@ -4,30 +4,24 @@ from Fasta import FastaFile
 from ribopy.core.get_gadgets import get_region_boundaries, get_reference_names
 import pandas as pd
 
-def get_sequence(ribo_object, reference_file_path, alias):
+def get_sequence(ribo_object, reference_file_path, alias=False):
     """
-    Retrieves the sequences of transcripts from a reference FASTA file.
-
-    Parameters:
-        ribo_object (Ribo): The Ribo object containing ribosome profiling data.
-        reference_file_path (str): The file path to the reference FASTA file.
-        alias (bool): Whether or not alias is used.
-
-    Returns:
-        dict: A dictionary mapping transcript identifiers to their respective sequences.
+    Retrieves transcript sequences from a reference FASTA file.
     """
-    transcript_np = ribo_object.transcript_names
     fasta = FastaFile(reference_file_path)
-    
-    fasta_dict = {e.header: e.sequence for e in fasta}
-    if alias == True:
-        sequence_dict = {
-            transcript.split("|")[4]: fasta_dict[transcript] for transcript in transcript_np
-        }
-    else:
-        sequence_dict = {
-        transcript: fasta_dict[transcript] for transcript in transcript_np
-    }
+
+    sequence_dict = {}
+
+    for e in fasta:
+        header = str(e.header)
+        seq = e.sequence
+
+        sequence_dict[header] = seq
+
+        parts = header.split("|")
+        if len(parts) > 4:
+            sequence_dict[parts[4]] = seq
+
     return sequence_dict
 
 def get_cds_range_lookup(ribo_object):
