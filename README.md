@@ -101,16 +101,13 @@ python adj_coverage.py \
 | `--min-z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
 | `--min-reads`    | int    | 2       | ❌       | Min reads to call stall site |
 | `--trim-edges`   | int    | 10      | ❌       | Exclude codons at CDS ends |
-| `--stall_min_reps` | int   | 2       | ❌       | Min replicates to support stall site |
+| `--pseudocount`   | int    | 10      | ❌       | Pseudocount used for log/z-score stall calling |
+| `--stall_min_reps` | float   | 0.5       | ❌       | Min replicates to support stall site |
+| `--tol` | int   | 0       | ❌       | Tolerance window for matching stall sites across replicates |
 | `--min_sep`      | int    | 7       | ❌       | Minimum separation between consensus sites; prefer downstream when closer than this |
-| `--pseudocount`   | float  | 0.5     | ❌       | Small value added to all amino acid counts before calculating enrichment, to avoid division by zero and stabilize log2 ratios |
-| `--out-json`     | path   | `stalls.jsonl` | ❌ | JSON output file |
-| `--motif`        | flag   | off     | ❌       | Run amino acid motif analysis |
-| `--reference`    | path   | —       | if `--motif` | Reference FASTA file |
-| `--flank-left`   | int    | 10      | ❌       | Codons left of P-site for motif |
-| `--flank-right`  | int    | 6       | ❌       | Codons right of P-site for motif |
-| `--out-png`      | path   | `motif.png`    | ❌ | Motif plot |
-| `--out-csv`      | path   | `motif_csv/`   | ❌ | CSV outputs for motif enrichment |
+| `--out-json`     | path   | `../ribostall_results/stall_sites.jsonl` | ❌ | JSON output file |
+| `--out-replicate-json`     | path   | None | ❌ | Per-replicate stall-site JSONL output; defaults next to --out-json |
+| `--summary-json`     | path   | None | ❌ | Run summary JSON output; defaults next to --out-json |
 
 Example input to check filter thresholds:
 ```
