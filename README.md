@@ -40,6 +40,7 @@ Main scripts:
 
 - `adj_coverage.py`: generates adjusted CDS-aligned coverage from a `.ribo` file.
 - `stall_sites.py`: calls ribosome stall sites from adjusted coverage and optionally generates motif plots.
+- `stall_sites_aa.py`: identifies amino acid enrichment at and around stall sites.
 
 Helper files:
 
@@ -89,23 +90,18 @@ python adj_coverage.py \
 4. **Consensus stall sites**: A site must appear in at least `--min-support` replicates to be reported. If there are >1 stall sites within `--min_sep` codons, the most downstream stall site is reported.
 5. **Output**: List of stall sites `{"group": "group", "transcript": "transcript", "tx_id": "tx_id", "gene": "gene", "pos_codon", 1}`
 
-Optional: `--motif` finds amino acid enrichment around stall sites. This is done by:
-1. **Count amino acids across all stall windows**: Within  `--flank-left` and `--flank-right` around the P-site at stall sites, count the amino acids at each position.
-2. **Calculate background frequency**: Compute the overall frequency of each amino acid across all codons in the same set of transcripts (not just stall sites). This ensures enrichment is relative to the transcriptome composition of the analyzed set.
-3. **Convert counts into probabilities**: Add `--pseudocount` to every amino acid count and normalize to get probabilities per position.
-4. **Position weight matrix**: Compare probability of amino acid at that position to the background frequency by calculating log2 enrichment `log2 ( probabilities / background frequency )`. Multiply the log2 enrichment with the probability to get *position weight matrix*. Enriched > 0, depleted < 0. 
-
 | Argument         | Type   | Default | Required | Description |
 |------------------|--------|---------|----------|-------------|
 | `--pickle`       | path   | —       | ✅       | Coverage pickle (`.pkl.gz`) |
 | `--ribo`         | path   | —       | ✅       | Input `.ribo` file |
-| `--groups`       | str    | —       | ✅       | group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3... |
-| `--tx_threshold` | float  | 1.0     | ❌       | Min avg reads/nt to keep transcript |
-| `--tx_min_rep`    | int    | 2       | ❌       | Min replicates to support transcript |
-| `--min_z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
-| `--min_reads`    | int    | 2       | ❌       | Min reads to call stall site |
+| `--alias`        | flag   | off       | ❌       | Include if .ribo uses mouse/human aliasing |
+| `--groups`       | str    | —       | ✅       | "group1:rep1,rep2,rep3;group2:rep1,rep2,rep3;group3..." |
+| `--tx-threshold` | float  | 1.0     | ❌       | Min avg reads/nt to keep transcript |
+| `--tx-min-reps`    | int    | 2       | ❌       | Min replicates to support transcript |
+| `--min-z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
+| `--min-reads`    | int    | 2       | ❌       | Min reads to call stall site |
+| `--trim-edges`   | int    | 10      | ❌       | Exclude codons at CDS ends |
 | `--stall_min_reps` | int   | 2       | ❌       | Min replicates to support stall site |
-| `--trim_edges`   | int    | 10      | ❌       | Exclude codons at CDS ends |
 | `--min_sep`      | int    | 7       | ❌       | Minimum separation between consensus sites; prefer downstream when closer than this |
 | `--pseudocount`   | float  | 0.5     | ❌       | Small value added to all amino acid counts before calculating enrichment, to avoid division by zero and stabilize log2 ratios |
 | `--out-json`     | path   | `stalls.jsonl` | ❌ | JSON output file |
@@ -125,6 +121,14 @@ python stall_sites.py \
 --tx_threshold 0.3 \
 --min_z 1.0
 ```
+
+# 3. Motif analysis
+
+`stall_sites_aa.py` finds amino acid enrichment around stall sites. This is done by:
+1. **Count amino acids across all stall windows**: Within  `--flank-left` and `--flank-right` around the P-site at stall sites, count the amino acids at each position.
+2. **Calculate background frequency**: Compute the overall frequency of each amino acid across all codons in the same set of transcripts (not just stall sites). This ensures enrichment is relative to the transcriptome composition of the analyzed set.
+3. **Convert counts into probabilities**: Add `--pseudocount` to every amino acid count and normalize to get probabilities per position.
+4. **Position weight matrix**: Compare probability of amino acid at that position to the background frequency by calculating log2 enrichment `log2 ( probabilities / background frequency )`. Multiply the log2 enrichment with the probability to get *position weight matrix*. Enriched > 0, depleted < 0. 
 
 Example input for motif analysis:
 ```
