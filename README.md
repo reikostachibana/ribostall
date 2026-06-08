@@ -41,12 +41,15 @@ Tested with:
 | Argument      | Type   | Default | Required | Description |
 |---------------|--------|---------|----------|-------------|
 | `--ribo`      | path   | —       | ✅       | Input `.ribo` file |
-| `--site-type` | str    | —       | ✅       | `"start"` (monosome) or `"stop"` (disome) for P-site offset |
 | `--min-len`   | int    | —       | ✅       | Minimum read length (inclusive) |
 | `--max-len`   | int    | —       | ✅       | Maximum read length (inclusive) |
-| `--procs`     | int    | 1       | ❌       | Number of parallel processes |
-| `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
+| `--site-type` | str    | —       | ✅       | `"start"` (monosome) or `"stop"` (disome) site to infer P-site offset |
+| `--search-window`  | int    | —       | ✅       | `("LO, "HI")` search window to infer P-site offset |
+| `--return-site`  | str    | —       | ✅       | Adjust coverage to P- or A-site |
 | `--alias`       | flag   | off  | ❌ | DO NOT USE  |
+| `--procs`     | int    | 1       | ❌       | Number of parallel processes |
+| `--batch-size`     | int    | 1       | ❌       | Transcript batch size bound to memory |
+| `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
 
 Output:
 * Gzipped pickle of dictionary `{replicate: {transcript: coverage_array}}`)
