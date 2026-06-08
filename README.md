@@ -124,7 +124,16 @@ python stall_sites.py \
 1. **Count amino acids across all stall windows**: Within  `--flank-left` and `--flank-right` around the P-site at stall sites, count the amino acids at each position.
 2. **Calculate background frequency**: Compute the overall frequency of each amino acid across all codons in the same set of transcripts (not just stall sites). This ensures enrichment is relative to the transcriptome composition of the analyzed set.
 3. **Convert counts into probabilities**: Add `--pseudocount` to every amino acid count and normalize to get probabilities per position.
-4. **Position weight matrix**: Compare probability of amino acid at that position to the background frequency by calculating log2 enrichment `log2 ( probabilities / background frequency )`. Multiply the log2 enrichment with the probability to get *position weight matrix*. Enriched > 0, depleted < 0. 
+4. **Position weight matrix**: Compare probability of amino acid at that position to the background frequency by calculating log2 enrichment `log2 ( probabilities / background frequency )`. Multiply the log2 enrichment with the probability to get *position weight matrix*. Enriched > 0, depleted < 0.
+
+| Argument         | Type   | Default | Required | Description |
+|------------------|--------|---------|----------|-------------|
+| `--stall-sites`  | path   | —       | ✅       | Stall-sites JSONL from `stall_sites.py` |
+| `--ribo`         | path   | —       | ✅       | Input `.ribo` file |
+| `--reference`    | path   | —       | ✅       | Reference FASTA file |
+| `--alias`        | flag   | off       | ❌       | Include if .ribo uses mouse/human aliasing |
+| `--flank-left`        | int   | 10       | ❌       | Number of amino acids to include left/upstream of the stall codon |
+| `--flank-right`        | int   | 6       | ❌       | Number of amino acids to include right/downstream of the stall codon |
 
 Example input for motif analysis:
 ```
