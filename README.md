@@ -34,6 +34,19 @@ Tested with:
 * Python: 3.12.6
 * OS: macOS
 
+#### Code organization
+
+Main scripts:
+
+- `adj_coverage.py`: generates adjusted CDS-aligned coverage from a `.ribo` file.
+- `stall_sites.py`: calls ribosome stall sites from adjusted coverage and optionally generates motif plots.
+
+Helper files:
+
+- `functions.py`: shared helpers for loading reference sequences, CDS ranges, offsets, and transcript aliases.
+- `functions_stall_sites.py`: helpers for transcript filtering, codonizing coverage, stall-site calling, and consensus stall-site formatting.
+- `functions_AA.py`: amino-acid motif helpers, including translation, motif windows, amino-acid count matrices, background frequencies, and logo plotting.
+  
 # 1. Generate coverage dictionary
 
 `adj_coverage.py` creates a gzipped pickle file of coverage data with applied P-site offset within the CDS.
