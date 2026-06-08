@@ -39,7 +39,7 @@ Tested with:
 Main scripts:
 
 - `adj_coverage.py`: generates adjusted CDS-aligned coverage from a `.ribo` file.
-- `stall_sites.py`: calls ribosome stall sites from adjusted coverage and optionally generates motif plots.
+- `stall_sites.py`: calls ribosome stall sites from adjusted coverage.
 - `stall_sites_aa.py`: identifies amino acid enrichment at and around stall sites.
 
 Helper files:
@@ -84,11 +84,11 @@ python adj_coverage.py \
 # 2. Get stall sites
 
 `stall_sites.py` finds stall sites from the coverage data with applied P-site offsets. This is done by:
-1. **Transcript filtering**: For each transcript, the average reads per nucleotide is computed. Transcripts with coverage below `--tx_threshold` in fewer than `--tx_min_rep` are excluded.
+1. **Transcript filtering**: For each transcript, the average reads per nucleotide is computed. Transcripts with coverage below `--tx-threshold` in fewer than `--tx-min-reps` are excluded.
 2. **Codonize read counts**: An array of the number of reads per codon. `0` corresponds to the start codon.
-3. **z-score calculation**: Coverage per codon is converted to `log2(x + pseudocount)` to stabilize variance and handle zeros. Compute transcript-wide z-scores. Codons with z-scores ≥ `--min_z` and reads ≥ `--min_reads` are considered candidate stalls. The first and last `--trim_edges` codons are ignored.
-4. **Consensus stall sites**: A site must appear in at least `--min-support` replicates to be reported. If there are >1 stall sites within `--min_sep` codons, the most downstream stall site is reported.
-5. **Output**: List of stall sites `{"group": "group", "transcript": "transcript", "tx_id": "tx_id", "gene": "gene", "pos_codon", 1}`
+3. **z-score calculation**: Coverage per codon is converted to `log2(x + pseudocount)` to stabilize variance and handle zeros. Compute transcript-wide z-scores. Codons with z-scores >= `--min-z` and reads >= `--min-reads` are considered candidate stalls. The first and last `--trim-edges` codons are ignored.
+4. **Consensus stall sites**: A site must appear in at least `--stall-min-reps` replicates to be reported. `--tol` allows sites within a small codon window across replicates to count as the same consensus site.
+5. **Output**: Consensus stall sites are saved as JSONL records with fields such as `group`, `transcript`, `tx_id`, `gene`, and `pos_codon`. Per-replicate calls and a run summary are also saved.
 
 | Argument         | Type   | Default | Required | Description |
 |------------------|--------|---------|----------|-------------|
@@ -101,10 +101,9 @@ python adj_coverage.py \
 | `--min-z`        | float  | 1.0     | ❌       | Min z-score to call stall site |
 | `--min-reads`    | int    | 2       | ❌       | Min reads to call stall site |
 | `--trim-edges`   | int    | 10      | ❌       | Exclude codons at CDS ends |
-| `--pseudocount`   | int    | 10      | ❌       | Pseudocount used for log/z-score stall calling |
-| `--stall_min_reps` | float   | 0.5       | ❌       | Min replicates to support stall site |
-| `--tol` | int   | 0       | ❌       | Tolerance window for matching stall sites across replicates |
-| `--min_sep`      | int    | 7       | ❌       | Minimum separation between consensus sites; prefer downstream when closer than this |
+| `--pseudocount`   | float    | 0.5      | ❌       | Pseudocount used for log/z-score stall calling |
+| `--stall-min-reps` | int   | 2       | ❌       | Min replicates to support consensus stall site |
+| `--tol` | int   | 0       | ❌       | Tolerance window, in codons, for matching stall sites across replicates |
 | `--out-json`     | path   | `../ribostall_results/stall_sites.jsonl` | ❌ | JSON output file |
 | `--out-replicate-json`     | path   | None | ❌ | Per-replicate stall-site JSONL output; defaults next to --out-json |
 | `--summary-json`     | path   | None | ❌ | Run summary JSON output; defaults next to --out-json |
@@ -115,8 +114,8 @@ python stall_sites.py \
 --pickle "../bxc/cov_di.pkl.gz" \
 --ribo "../bxc/bxc_disome.ribo" \
 --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
---tx_threshold 0.3 \
---min_z 1.0
+--tx-threshold 0.3 \
+--min-z 1.0
 ```
 
 # 3. Motif analysis
@@ -129,16 +128,13 @@ python stall_sites.py \
 
 Example input for motif analysis:
 ```
-python stall_sites.py \
---pickle "../bxc/cov_di.pkl.gz" \
+python stall_sites_aa.py \
+--stall-sites "../ribostall_results/stall_sites.jsonl" \
 --ribo "../bxc/bxc_disome.ribo" \
---groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" \
---tx_threshold 0.3 \
---min_z 1.0 \
---motif \
 --reference "../reference_files/appris_mouse_v2_selected.fa.gz" \
 --flank-left 20 \
---flank-right 10
+--flank-right 10 \
+--out-dir "../ribostall_results/aa_motif"
 ```
 
 # Troubleshooting
@@ -172,10 +168,10 @@ Successful run of `adj_coverage.py`:
 
 Successful run of `stall_sites.py`:
 ```
-(ribo) (base) uwusers-imac:ribostall chunglab$ python stall_sites.py --pickle "../Gatfield_Share/cov_di.pkl.gz" --ribo "../Gatfield_Share/bxc_disome.ribo" --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" --tx_threshold 0.3 --min_z 1.0 --motif --reference "../Gatfield_Share/appris_mouse_v2_selected.fa.gz" --flank-left 20 --flank-right 10
+(ribo) (base) uwusers-imac:ribostall chunglab$ python stall_sites.py --pickle "../Gatfield_Share/cov_di.pkl.gz" --ribo "../Gatfield_Share/bxc_disome.ribo" --groups "kidney:kidney_rep1,kidney_rep2,kidney_rep3;liver:liver_rep1,liver_rep2,liver_rep3;lung:lung_rep1,lung_rep2,lung_rep3" --tx-threshold 0.3 --min-z 1.0
 Number of filtered transcripts: 122
 Number of total stall sites per group: {'kidney': 902, 'liver': 942, 'lung': 853}
-2025-09-30 13:40:32,099  INFO  MainProcess  Saved JSON to ../ribostall_results/stall_sites.jsonl
-2025-09-30 13:40:52,687  INFO  MainProcess  Saved image to ../ribostall_results/motif.png
-2025-09-30 13:40:52,708  INFO  MainProcess  Saved csv to ../ribostall_results/motif_csv/lung_pwm_log2_enrichment.csv
+2025-09-30 13:40:32,099  INFO  MainProcess  Saved consensus stall sites to ../ribostall_results/stall_sites.jsonl
+2025-09-30 13:40:32,245  INFO  MainProcess  Saved per-replicate stall sites to ../ribostall_results/stall_sites_by_replicate.jsonl
+2025-09-30 13:40:32,246  INFO  MainProcess  Saved run summary to ../ribostall_results/stall_sites_summary.json
 ```

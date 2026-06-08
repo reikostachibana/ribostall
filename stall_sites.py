@@ -150,15 +150,6 @@ def parse_args():
         metavar="CODONS",
         help="Tolerance window for matching stall sites across replicates",
     )
-    add_option(
-        parser,
-        "--min-sep",
-        legacy="--min_sep",
-        type=int,
-        default=7,
-        metavar="CODONS",
-        help="Minimum separation between consensus sites",
-    )
     parser.add_argument(
         "--out-json",
         default="../ribostall_results/stall_sites.jsonl",
@@ -231,7 +222,6 @@ def main():
             reps,
             min_support=args.stall_min_reps,
             tol=args.tol,
-            min_sep=args.min_sep,
         )
         for group, reps in groups.items()
     }

@@ -84,18 +84,10 @@ def consensus_stalls_across_reps(
     *,
     min_support: int = 2,
     tol: int = 0,
-    min_sep: int = 0,
-    conflict_resolution: str = "keep_both"  # "keep_both" removes downstream preference
 ):
     """
     Compute consensus stall indices per transcript across replicate experiments,
-    allowing a tolerance window. When two candidates are closer than `min_sep`,
-    resolve with `conflict_resolution`:
-        - "keep_both": keep both close sites (ignores min_sep)
-        - "downstream": keep downstream (your original behavior)
-        - "upstream": keep upstream
-        - "merge_median": replace close pair with median index
-        - "drop_both": remove both close sites
+    allowing a tolerance window.
     """
 
     def _indices_from_stalls(stalls_for_tx: Any) -> List[int]:
@@ -152,27 +144,7 @@ def consensus_stalls_across_reps(
 
             if support >= min_support:
                 rep_idx = int(np.median(supporting_hits)) if (tol > 0 and supporting_hits) else int(c)
-
-                if not consensus:
-                    consensus.append(rep_idx)
-                    continue
-
-                # handle close-by conflicts
-                if rep_idx - consensus[-1] < min_sep:
-                    if conflict_resolution == "downstream":
-                        consensus[-1] = rep_idx
-                    elif conflict_resolution == "upstream":
-                        pass  # keep previous; skip new
-                    elif conflict_resolution == "merge_median":
-                        consensus[-1] = int(np.round(np.median([consensus[-1], rep_idx])))
-                    elif conflict_resolution == "drop_both":
-                        consensus.pop()  # drop previous and skip new
-                    elif conflict_resolution == "keep_both":
-                        consensus.append(rep_idx)  # ignore min_sep
-                    else:
-                        raise ValueError(f"Unknown conflict_resolution: {conflict_resolution}")
-                else:
-                    consensus.append(rep_idx)
+                consensus.append(rep_idx)
 
         out[tx] = sorted(set(consensus))
 
