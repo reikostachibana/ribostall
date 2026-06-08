@@ -134,6 +134,10 @@ python stall_sites.py \
 | `--alias`        | flag   | off       | ❌       | Include if .ribo uses mouse/human aliasing |
 | `--flank-left`        | int   | 10       | ❌       | Number of amino acids to include left/upstream of the stall codon |
 | `--flank-right`        | int   | 6       | ❌       | Number of amino acids to include right/downstream of the stall codon |
+| `--psite-offset`        | int   | 0       | ❌       | Codon offset to add before extracting motif windows. If P-site offset has been applied, 0 centers P-site, 1 centers A-site, and -1 centers E site. |
+| `--pseudocount`        | float   | 0.5       | ❌       | Pseudocount for amino-acid enrichment calculation |
+| `--out-dir`        | path   | ../ribostall_results/aa_motif  | ❌       | Output directory for motif analysis |
+| `--out-png`        | path   | None  | ❌       | Logo PNG path; defaults to OUT_DIR/motif_logo.png |
 
 Example input for motif analysis:
 ```
