@@ -27,6 +27,7 @@ def main():
     )
     parser.add_argument("--pickle", required=True, help="Path to coverage pickle.gz file")
     parser.add_argument("--ribo", required=True, help="Path to ribo file")
+    parser.add_argument("--alias", action="store_true", help="Include if using human/mouse aliasing")
     parser.add_argument("--tx_threshold", type=float, default=1.0,
                         help="Minimum reads/nt (in CDS) for filtering transcripts")
     parser.add_argument("--groups", required=True,
@@ -72,7 +73,10 @@ def main():
         cov = pickle.load(f)
 
     # Load ribo object (adjust alias to your organism as needed)
-    ribo_object = Ribo(args.ribo, alias=ribopy.api.alias.apris_human_alias)
+    if args.alias:
+        ribo_object = Ribo(args.ribo, alias=ribopy.api.alias.apris_human_alias)
+    else:
+        ribo_object = Ribo(args.ribo)
 
     # (Optional) quick sanity check that all reps exist in coverage
     missing = [r for rs in groups.values() for r in rs if r not in cov]
@@ -147,7 +151,7 @@ def main():
     if args.motif:
         reference_file_path = args.reference
         cds_range = get_cds_range_lookup(ribo_object)
-        sequence = get_sequence(ribo_object, reference_file_path, alias = ribopy.api.alias.apris_human_alias)   
+        sequence = get_sequence(ribo_object, reference_file_path, alias=True)   # edit
         def compute_W_for_group(g):
             stalls = consensus[g]
             win = windows_aa(consensus[g], cds_range, sequence,
