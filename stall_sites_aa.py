@@ -140,7 +140,7 @@ def parse_args():
         type=int,
         default=0,
         metavar="CODONS",
-        help="Codon offset to add before extracting motif windows",
+        help="Codon offset to add before extracting motif windows. If P-site offset has been applied, 0 centers P-site, 1 centers A-site, and -1 centers E site.",
     )
     parser.add_argument(
         "--pseudocount",
