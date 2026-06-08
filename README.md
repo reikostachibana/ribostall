@@ -46,7 +46,7 @@ Tested with:
 | `--site-type` | str    | —       | ✅       | `"start"` (monosome) or `"stop"` (disome) site to infer P-site offset |
 | `--search-window`  | int    | —       | ✅       | `("LO, "HI")` search window to infer P-site offset |
 | `--return-site`  | str    | —       | ✅       | Adjust coverage to P- or A-site |
-| `--alias`       | flag   | off  | ❌ | DO NOT USE  |
+| `--alias`       | flag   | off  | ❌ | Include if .ribo uses mouse/human aliasing  |
 | `--procs`     | int    | 1       | ❌       | Number of parallel processes |
 | `--batch-size`     | int    | 1       | ❌       | Transcript batch size bound to memory |
 | `--out`       | path   | `cov.pkl.gz` | ✅ | Output gzipped pickle file |
@@ -56,13 +56,15 @@ Output:
 
 Example input:
 ```
-python adj_coverage.py  \
---ribo "../bxc/bxc_disome.ribo" \
---site-type "stop" \
---min-len 57 \
---max-len 65 \
---procs 9 \
---out "../bxc/cov_di.pkl.gz"
+python adj_coverage.py \
+  --ribo ../all.ribo \
+  --min-len 28 \
+  --max-len 40 \
+  --site-type start \
+  --search-window -30 -10 \
+  --return-site P \
+  --alias \
+  --out ../adj_coverage.pkl.gz
 ```
 
 # 2. Get stall sites
