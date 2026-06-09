@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 import argparse
+import datetime
 import gzip
+import json
 import logging
 import multiprocessing as mp
 import pickle
 import sys
 import time
+from pathlib import Path
 from typing import Dict, Tuple, Iterable, List
 
 import numpy as np
@@ -161,6 +164,8 @@ def parse_args():
                    help="Optional transcript batch size to bound memory (0 = process all transcripts at once per length)")
     p.add_argument("--out", default="coverage_bulk_perlen_perexp.pkl.gz",
                    help="Output pickle.gz path")
+    p.add_argument("--summary-json", default=None,
+                   help="Run summary JSON output; defaults next to --out")
     return p.parse_args()
 
 def main():
@@ -220,6 +225,52 @@ def main():
     with gzip.open(args.out, "wb") as f:
         pickle.dump(all_coverage_dict, f)
     logging.info(f"Saved coverage to {args.out}")
+
+    summary_json = args.summary_json
+    if summary_json is None:
+        summary_json = str(Path(args.out).with_suffix("").with_suffix(".summary.json"))
+
+    coverage_totals = {
+        exp: int(sum(np.asarray(arr).sum() for arr in tx_dict.values()))
+        for exp, tx_dict in all_coverage_dict.items()
+    }
+    nonzero_transcripts = {
+        exp: int(sum(np.asarray(arr).sum() > 0 for arr in tx_dict.values()))
+        for exp, tx_dict in all_coverage_dict.items()
+    }
+
+    summary = {
+        "timestamp": datetime.datetime.now().isoformat(timespec="seconds"),
+        "command": " ".join(sys.argv),
+        "parameters": {
+            "ribo": args.ribo,
+            "min_len": args.min_len,
+            "max_len": args.max_len,
+            "site_type": args.site_type,
+            "search_window": args.search_window,
+            "return_site": args.return_site,
+            "alias": args.alias,
+            "procs": args.procs,
+            "batch_size": args.batch_size,
+            "out": args.out,
+            "summary_json": summary_json,
+        },
+        "experiments": experiments,
+        "n_experiments": len(experiments),
+        "n_transcripts": len(transcripts),
+        "offsets_by_experiment": exp_offsets,
+        "coverage_totals_by_experiment": coverage_totals,
+        "nonzero_transcripts_by_experiment": nonzero_transcripts,
+        "output_files": {
+            "coverage_pickle": args.out,
+            "summary_json": summary_json,
+        },
+    }
+
+    Path(summary_json).parent.mkdir(parents=True, exist_ok=True)
+    with open(summary_json, "w") as f:
+        json.dump(summary, f, indent=2)
+    logging.info(f"Saved run summary to {summary_json}")
 
     return 0
 
